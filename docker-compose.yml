@@ -1,0 +1,40 @@
+version: '3'
+services:
+  shopping_server:
+    build:
+      context: ./backend/shopping_server
+      dockerfile: Dockerfile
+      target: dev
+    container_name: 'shopping_server'
+    stdin_open: true
+    tty: true
+    ports:
+      - "9999:9999"
+    depends_on:
+      - shopping_db
+    volumes:
+      - ./backend/shopping_server:/go/src/shopping/backend/shopping_server
+
+  shopping_db:
+    stdin_open: true
+    tty: true
+    restart: always
+    container_name: shopping_db
+    hostname: db
+    build:
+      context: .
+      dockerfile: ./backend/shopping_server/shopping_db/Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=shopping_db
+    volumes:
+      - shopping-data-volume:/var/lib/postgresql/data
+
+volumes:
+  shopping-data-volume:
+    name: shopping-data
+    driver: local
