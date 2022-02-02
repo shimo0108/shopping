@@ -33,6 +33,7 @@ services:
       - POSTGRES_DB=shopping_db
     volumes:
       - shopping-data-volume:/var/lib/postgresql/data
+      - ./backend/shopping_server/shopping_db/init/:/docker-entrypoint-initdb.d
 
 volumes:
   shopping-data-volume:
