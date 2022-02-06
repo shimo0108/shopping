@@ -1,41 +1,51 @@
 version: '3'
 services:
-  shopping_server:
+  shop_grpc:
     build:
-      context: ./backend/shopping_server
-      dockerfile: Dockerfile
+      context: ./backend/server/shopping
+      dockerfile: ../docker/Dockerfile.shopping
       target: dev
-    container_name: 'shopping_server'
     stdin_open: true
     tty: true
     ports:
-      - "9999:9999"
+      - 8080:8080
+    networks:
+      - grpc-network
     depends_on:
-      - shopping_db
+      - shop_db
     volumes:
-      - ./backend/shopping_server:/go/src/shopping/backend/shopping_server
-
-  shopping_db:
-    stdin_open: true
-    tty: true
-    restart: always
-    container_name: shopping_db
-    hostname: db
+      - ./backend/server:/go/src/shopping/backend/server
+  shop_db:
     build:
-      context: .
-      dockerfile: ./backend/shopping_server/shopping_db/Dockerfile
-    ports:
-      - "5432:5432"
+      context: ./backend/server/shopping/db
+      dockerfile: Dockerfile
+    restart: always
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=shopping_db
+    ports:
+      - 5432:5432
     volumes:
-      - shopping-data-volume:/var/lib/postgresql/data
-      - ./backend/shopping_server/shopping_db/init/:/docker-entrypoint-initdb.d
-
+      - data:/var/lib/postgresql/data
+      - ./backend/server/shopping/db/init/:/docker-entrypoint-initdb.d
+  gateway:
+    build:
+      context: ./backend/server/gateway
+      dockerfile: ../docker/Dockerfile.gateway
+      target: dev
+    container_name: gateway
+    stdin_open: true
+    tty: true
+    networks:
+      - grpc-network
+    ports:
+      - 9999:9999
+    volumes:
+      - ./backend/server:/go/src/shopping/backend/server
+networks:
+  grpc-network:
+    name: grpc-network
 volumes:
-  shopping-data-volume:
-    name: shopping-data
+  data:
     driver: local

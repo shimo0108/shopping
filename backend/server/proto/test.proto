@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shimo0108/shopping/backend/server";
+
+import "google/api/annotations.proto";
+
+message TestRequest {
+  string message = 1;
+}
+
+message TestResponse {
+  string message = 1;
+}
+
+service TestService {
+  rpc Test(TestRequest) returns (TestResponse) {
+    option (google.api.http) = {
+      get: "/test"
+   };
+  }
+}

@@ -1,0 +1,10 @@
+FROM golang:latest as dev
+
+COPY . .
+
+WORKDIR /go/src/shopping/backend/server/gateway
+
+
+EXPOSE 9999
+
+CMD ["go", "run", "main.go"]
