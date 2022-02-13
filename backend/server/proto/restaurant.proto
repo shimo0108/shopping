@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shimo0108/shopping/backend/server";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message Restaurant {
+  string id = 1;
+  string name = 2;
+  int32 fee = 3;
+  int32 time_required = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message ListRestaurantRequest {
+}
+message ListRestaurantResponse {
+  repeated Restaurant restaurants = 1;
+}
+
+message ReadRestaurantRequest {
+  string id = 1;
+}
+
+message ReadRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+message CreateRestaurantRequest {
+  string name = 1;
+  int32 fee = 2;
+  int32 time_required = 3;
+}
+
+message CreateRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+message UpdateRestaurantRequest {
+  string id = 1;
+  string name = 2;
+  int32 fee = 3;
+  int32 time_required = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message UpdateRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+message DeleteRestaurantRequest {
+  string id = 1;
+}
+
+message DeleteRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+
+service RestaurantService {
+  rpc ListRestaurants (ListRestaurantRequest) returns (ListRestaurantResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/restaurants"
+    };
+  };
+
+  rpc GetRestaurant (ReadRestaurantRequest) returns (ReadRestaurantResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/restaurants/{id}"
+    };
+  };
+
+  rpc CreateRestaurant(CreateRestaurantRequest) returns (CreateRestaurantResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/restaurants"
+      body: "*"
+    };
+  };
+
+  rpc UpdateRestaurant(UpdateRestaurantRequest) returns (UpdateRestaurantResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/restaurants/{id}"
+      body: "*"
+    };
+  };
+
+  rpc DeleteRestaurant(DeleteRestaurantRequest) returns (DeleteRestaurantResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/restaurants/{id}"
+    };
+  };
+}

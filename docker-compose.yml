@@ -9,26 +9,25 @@ services:
     tty: true
     ports:
       - 8080:8080
-    networks:
-      - grpc-network
     depends_on:
       - shop_db
     volumes:
       - ./backend/server:/go/src/shopping/backend/server
   shop_db:
     build:
-      context: ./backend/server/shopping/db
+      context: ./backend/server/shopping/config/db
       dockerfile: Dockerfile
     restart: always
+    container_name: shop_db
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=shimo0108
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=shopping_db
     ports:
       - 5432:5432
     volumes:
       - data:/var/lib/postgresql/data
-      - ./backend/server/shopping/db/init/:/docker-entrypoint-initdb.d
+      - ./backend/server/shopping/config/db/init/:/docker-entrypoint-initdb.d
   gateway:
     build:
       context: ./backend/server/gateway
@@ -37,15 +36,10 @@ services:
     container_name: gateway
     stdin_open: true
     tty: true
-    networks:
-      - grpc-network
     ports:
       - 9999:9999
     volumes:
       - ./backend/server:/go/src/shopping/backend/server
-networks:
-  grpc-network:
-    name: grpc-network
 volumes:
   data:
     driver: local
