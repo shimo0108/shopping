@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shimo0108/shopping/backend/server";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message Food {
+  string id = 1;
+  string restaurant_id = 2;
+  string name = 3;
+  int32 price = 4;
+  string description = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListFoodRequest {
+  string restaurant_id = 1;
+}
+message ListFoodResponse {
+  repeated Food foods = 1;
+}
+
+message ReadFoodRequest {
+  string id = 1;
+}
+
+message ReadFoodResponse {
+  Food food = 1;
+}
+
+message CreateFoodRequest {
+  string name = 1;
+  int32 price = 2;
+  string description = 3;
+  string restaurant_id = 4;
+
+}
+
+message CreateFoodResponse {
+  Food Food = 1;
+}
+
+message UpdateFoodRequest {
+  string id = 1;
+  string restaurant_id = 2;
+  string name = 3;
+  int32 price = 4;
+  string description = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message UpdateFoodResponse {
+  Food Food = 1;
+}
+
+message DeleteFoodRequest {
+  string id = 1;
+}
+
+message DeleteFoodResponse {
+  Food Food = 1;
+}
+
+
+service FoodService {
+  rpc ListFoods (ListFoodRequest) returns (ListFoodResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/foods/{restaurant_id}"
+    };
+  };
+
+  rpc GetFood (ReadFoodRequest) returns (ReadFoodResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/food/{id}"
+    };
+  };
+
+  rpc CreateFood(CreateFoodRequest) returns (CreateFoodResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/food"
+      body: "*"
+    };
+  };
+
+  rpc UpdateFood(UpdateFoodRequest) returns (UpdateFoodResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/food/{id}"
+      body: "*"
+    };
+  };
+
+  rpc DeleteFood(DeleteFoodRequest) returns (DeleteFoodResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/food/{id}"
+    };
+  };
+}

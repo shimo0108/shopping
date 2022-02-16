@@ -1,8 +1,6 @@
 package persistence
 
 import (
-	"fmt"
-
 	"github.com/shimo0108/shopping/backend/server/shopping/domain/model"
 	"github.com/shimo0108/shopping/backend/server/shopping/domain/repository"
 	"gorm.io/gorm"
@@ -11,8 +9,6 @@ import (
 type restaurantPersistence struct {
 	Conn *gorm.DB
 }
-
-var layout = "2006-01-02 15:04:05"
 
 func NewRestaurantPersistence(conn *gorm.DB) repository.RestaurantRepository {
 	return &restaurantPersistence{Conn: conn}
@@ -63,9 +59,8 @@ func (rp *restaurantPersistence) Update(restaurant *model.Restaurant) (*model.Re
 func (rp *restaurantPersistence) Delete(id string) (restaurant *model.Restaurant, err error) {
 
 	db := rp.Conn
-	fmt.Println("ここまできてる")
 
-	if err := db.Delete(&model.Restaurant{}, id).Error; err != nil {
+	if err := db.Where("id = ?", id).Delete(&restaurant).Error; err != nil {
 		return nil, err
 	}
 

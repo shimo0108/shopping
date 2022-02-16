@@ -5,10 +5,10 @@ import (
 )
 
 type Restaurant struct {
-	ID           string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	Name         string
-	Fee          int32
-	TimeRequired int32
+	ID           string `gorm:"type:id;primary_key;default:uuid_generate_v4()"`
+	Name         string `gorm:"not null"`
+	Fee          int32  `gorm:"not null;default 0"`
+	TimeRequired int32  `gorm:"not null;default 0"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
