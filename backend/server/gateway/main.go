@@ -8,6 +8,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	gw_food "github.com/shimo0108/shopping/backend/server/pb/food"
+	gw_line_food "github.com/shimo0108/shopping/backend/server/pb/line_food"
 	gw_restaurant "github.com/shimo0108/shopping/backend/server/pb/restaurant"
 	gw_test "github.com/shimo0108/shopping/backend/server/pb/test"
 
@@ -19,6 +20,7 @@ var (
 	testEndpoint       = "shop_grpc:8080"
 	restaurantEndpoint = "shop_grpc:8080"
 	foodEndpoint       = "shop_grpc:8080"
+	lineFoodEndpoint   = "shop_grpc:8080"
 )
 
 func run() error {
@@ -39,6 +41,10 @@ func run() error {
 	food_err := gw_food.RegisterFoodServiceHandlerFromEndpoint(ctx, mux, foodEndpoint, opts)
 	if food_err != nil {
 		fmt.Printf("serve: %v\n", food_err)
+	}
+	line_food_err := gw_line_food.RegisterLineFoodServiceHandlerFromEndpoint(ctx, mux, lineFoodEndpoint, opts)
+	if line_food_err != nil {
+		fmt.Printf("serve: %v\n", line_food_err)
 	}
 
 	return http.ListenAndServe(":9999", mux)

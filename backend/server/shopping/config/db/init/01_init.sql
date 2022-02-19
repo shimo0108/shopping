@@ -31,12 +31,11 @@ CREATE TABLE IF NOT EXISTS line_foods(
   id varchar(255) PRIMARY KEY,
   restaurant_id varchar(255) NOT NULL,
   food_id varchar(255) NOT NULL,
-  order_id varchar(255) NOT NULL,
+  order_id varchar(255),
   count int NOT NULL DEFAULT 0,
   active  boolean default false,
   created_at  timestamp not null default current_timestamp,
   updated_at  timestamp not null default current_timestamp,
   foreign key(restaurant_id) references restaurants(id),
-  foreign key(food_id) references foods(id),
-  foreign key(order_id) references orders(id)
+  foreign key(food_id) references foods(id)
 );

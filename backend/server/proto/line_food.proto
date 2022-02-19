@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shimo0108/shopping/backend/server";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "proto/restaurant.proto";
+
+message LineFood {
+  string id = 1;
+  string restaurant_id = 2;
+  string food_id = 3;
+  string order_id = 4;
+  int32 count = 5;
+  bool active = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message ListLineFoodRequest {
+}
+message ListLineFoodResponse {
+  repeated string line_food_ids = 1;
+  proto.Restaurant restaurant = 2;
+  int32 count = 3;
+  int32 amount = 4;
+}
+
+message CreateLineFoodRequest {
+  string restaurant_id = 1;
+  string food_id = 2;
+  int32 count = 3;
+}
+
+message CreateLineFoodResponse {
+  LineFood LineFood = 1;
+}
+
+message ReplaceLineFoodRequest {
+  string restaurant_id = 1;
+}
+
+message ReplaceLineFoodResponse {
+  repeated LineFood line_foods = 1;
+}
+
+service LineFoodService {
+  rpc ListLineFoods (ListLineFoodRequest) returns (ListLineFoodResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/line_foods"
+    };
+  };
+
+  rpc CreateLineFood(CreateLineFoodRequest) returns (CreateLineFoodResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/line_food"
+      body: "*"
+    };
+  };
+
+  rpc ReplaceLineFood(ReplaceLineFoodRequest) returns (ReplaceLineFoodResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/line_foods/{restaurant_id}"
+    };
+  };
+}

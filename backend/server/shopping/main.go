@@ -7,6 +7,7 @@ import (
 	"net"
 
 	pb_food "github.com/shimo0108/shopping/backend/server/pb/food"
+	pb_line_food "github.com/shimo0108/shopping/backend/server/pb/line_food"
 	pb_restaurant "github.com/shimo0108/shopping/backend/server/pb/restaurant"
 	pb_test "github.com/shimo0108/shopping/backend/server/pb/test"
 	"github.com/shimo0108/shopping/backend/server/shopping/config/db"
@@ -33,6 +34,10 @@ func main() {
 	foodUsecase := usecase.NewFoodUsecase(foodPersistence)
 	foodHandler := handler.NewFoodHandler(foodUsecase)
 
+	lineFoodPersistence := persistence.NewLineFoodPersistence(db.NewDB())
+	lineFoodUsecase := usecase.NewLineFoodUsecase(lineFoodPersistence)
+	lineFoodHandler := handler.NewLineFoodHandler(lineFoodUsecase)
+
 	fmt.Println("Go gRPC START!")
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
@@ -45,6 +50,8 @@ func main() {
 	pb_test.RegisterTestServiceServer(grpcServer, &TestService{})
 	pb_restaurant.RegisterRestaurantServiceServer(grpcServer, restaurantHandler)
 	pb_food.RegisterFoodServiceServer(grpcServer, foodHandler)
+	pb_line_food.RegisterLineFoodServiceServer(grpcServer, lineFoodHandler)
+
 	log.Printf("gRPC server start")
 
 	reflection.Register(grpcServer)
