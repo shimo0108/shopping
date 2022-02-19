@@ -8,6 +8,7 @@ type Food struct {
 	Name         string `gorm:"not null"`
 	Price        int32  `gorm:"not null;default 0"`
 	Description  string `gorm:"type:varchar(255);not null"`
+	LineFood     []LineFood
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
