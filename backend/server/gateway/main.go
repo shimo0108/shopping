@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/golang/glog"
+	"github.com/gorilla/handlers"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	gw_food "github.com/shimo0108/shopping/backend/server/pb/food"
 	gw_line_food "github.com/shimo0108/shopping/backend/server/pb/line_food"
@@ -29,6 +30,12 @@ func run() error {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
+
+	newMux := handlers.CORS(
+		// handlers.AllowedMethods([]string{"GET", "POST", "PUT"}),
+		handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"}),
+		// handlers.AllowedOrigins([]string{"*"}),
+	)(mux)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	test_err := gw_test.RegisterTestServiceHandlerFromEndpoint(ctx, mux, testEndpoint, opts)
 	if test_err != nil {
@@ -47,7 +54,7 @@ func run() error {
 		fmt.Printf("serve: %v\n", line_food_err)
 	}
 
-	return http.ListenAndServe(":9999", mux)
+	return http.ListenAndServe(":9999", newMux)
 }
 
 func main() {
