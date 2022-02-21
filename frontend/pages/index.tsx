@@ -1,14 +1,20 @@
 import React, { useReducer, useEffect } from 'react';
-import { Flex, Container, Heading, Stack, Image } from '@chakra-ui/react';
+import { Flex, Container, Heading, Stack, Image, GridItem, Grid, Skeleton, Text } from '@chakra-ui/react';
 
 import { fetchRestaurants } from './api/restaurants';
 import MainLogo from '../public/images/logo.jpg';
 import MainCoverImage from '../public/images/main-cover-image.jpg';
+import RestaurantImage from '../public/images/restaurant-image.jpg';
+import Link from 'next/link'
+
+
 import {
   initialState,
   restaurantsActionTypes,
   restaurantsReducer,
 } from '../state/reducers/restaurants';
+import { REQUEST_STATE } from '../state/constants';
+
 
 export const Index = () => {
   const [state, dispatch] = useReducer(restaurantsReducer, initialState);
@@ -49,9 +55,28 @@ export const Index = () => {
       <Stack textAlign={'center'} align={'center'}>
         <Image src={MainCoverImage.src} alt='main' boxSize='100%' />
       </Stack>
-      {state.restaurantsList.map((restaurant) => (
-        <div key={restaurant.id}>{restaurant.name}</div>
-      ))}
+      <Stack >
+        {
+          state.fetchState === REQUEST_STATE.LOADING ?
+            <Grid templateColumns='repeat(3, 1fr)' gap={6}>
+              <Skeleton w='100%' h='200' />
+              <Skeleton w='100%' h='200' />
+              <Skeleton w='100%' h='200' />
+            </Grid>
+        :
+          <Grid templateColumns='repeat(3, 1fr)' gap={6}>
+              {state.restaurantsList.map((restaurant, index) => (
+              <GridItem w='100%' h='200' key={restaurant.id}>
+                <Image src={RestaurantImage.src} alt='restaurant' boxSize='100%' />
+                  <Link href={`/food/${restaurant.id}`} key={index}>
+                    <a>{restaurant.name}</a>
+                  </Link>
+                  <Text fontSize='sm'>{`配送料：${restaurant.fee}円 ${restaurant.time_required}分`}</Text>
+              </ GridItem >
+              ))}
+          </Grid>
+        }
+      </Stack>
     </Container>
   );
 };
