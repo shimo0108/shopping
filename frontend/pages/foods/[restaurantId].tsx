@@ -21,17 +21,19 @@ import {
   ModalFooter,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { MinusIcon, AddIcon } from '@chakra-ui/icons'
+import { MinusIcon, AddIcon } from '@chakra-ui/icons';
 
 import { useRouter } from 'next/router';
 import { fetchFoods } from '../api/foods';
 import { REQUEST_STATE } from '../../state/constants';
+import { HTTP_STATUS_CODE } from '../../state/constants';
+import { postLineFoods, replaceLineFoods } from '../api/line_foods';
+
 import MainLogo from '../../public/images/logo.jpg';
 import OrderHeaderImage from '../../public/images/order-header.jpg';
-
 import FoodImage from '../../public/images/food-image.jpg';
 import { Food } from '../../lib/food/type';
-import Link from 'next/link';
+import { NewOrderConfirmModal } from '../../components/NewOrderConfirmModal';
 import {
   initialState as foodsInitialState,
   foodsActionTypes,
@@ -50,6 +52,9 @@ type Props = {
   isOpenOrderDialog: boolean;
   selectedFood: Food;
   selectedFoodCount: number;
+  isOpenNewOrderDialog: boolean;
+  existingResutaurautName: string;
+  newResutaurautName: string;
 };
 
 export const Foods = () => {
@@ -60,6 +65,9 @@ export const Foods = () => {
     isOpenOrderDialog: false,
     selectedFood: initFood,
     selectedFoodCount: 1,
+    isOpenNewOrderDialog: false,
+    existingResutaurautName: '',
+    newResutaurautName: '',
   };
   const [state, setState] = useState(initialState);
 
@@ -75,14 +83,14 @@ export const Foods = () => {
     setState({
       ...state,
       selectedFoodCount: state.selectedFoodCount + 1,
-    })
-  }
+    });
+  };
   const onClickCountDown = (state: Props) => {
     setState({
       ...state,
       selectedFoodCount: state.selectedFoodCount - 1,
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     fetchFoods(restaurantId as string).then((data) => {
@@ -94,6 +102,36 @@ export const Foods = () => {
       });
     });
   }, []);
+
+  const submitOrder = () => {
+    postLineFoods({
+      foodId: state.selectedFood.id,
+      restaurantId: state.selectedFood.restaurant_id,
+      count: state.selectedFoodCount,
+    })
+      .then(() => router.push('/orders'))
+      .catch((e) => {
+        if (e.response.status === HTTP_STATUS_CODE.NOT_ACCEPTABLE) {
+          setState({
+            ...state,
+            isOpenOrderDialog: false,
+            isOpenNewOrderDialog: true,
+            existingResutaurautName: e.response.data.existing_restaurant,
+            newResutaurautName: e.response.data.new_restaurant,
+          });
+        } else {
+          throw e;
+        }
+      });
+  };
+
+  const replaceOrder = () => {
+    replaceLineFoods({
+      foodId: state.selectedFood.id,
+      restaurantId: state.selectedFood.restaurant_id,
+      count: state.selectedFoodCount,
+    }).then(() => router.push('/orders'));
+  };
 
   return (
     <Container maxW='100%'>
@@ -191,71 +229,82 @@ export const Foods = () => {
           </Grid>
         )}
       </Stack>
-      <Modal isOpen={state.isOpenOrderDialog} onClose={() => setState({
-        ...state,
-        isOpenOrderDialog: false,
-      })}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>購入する商品数を入力してください。</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Image src={OrderHeaderImage.src} alt='order' maxW='100%' />
-            <Text
-              textAlign={'center'}
-              color={useColorModeValue('gray.700', 'gray.400')}
-              fontSize='sm'
-            >
-              {state.selectedFood.name}
-            </Text>
-            <Text
-              textAlign={'center'}
-              color={useColorModeValue('gray.700', 'gray.400')}
-              fontSize='sm'
-            >
-              {state.selectedFood.description}
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Text
-              textAlign={'center'}
-              color={useColorModeValue('gray.700', 'gray.400')}
-              fontSize='sm'
-            >
-              合計{state.selectedFoodCount}個
-            </Text>
-            <ButtonGroup size='sm' isAttached variant='outline'>
-              <IconButton
-               aria-label='Add to friends'
-               isDisabled={state.selectedFoodCount <= 1}
-               icon={
-                <MinusIcon
-                   onClick={() => onClickCountDown(state)}
+      {state.isOpenOrderDialog && (
+        <Modal
+          isOpen={state.isOpenOrderDialog}
+          onClose={() =>
+            setState({
+              ...state,
+              isOpenOrderDialog: false,
+            })
+          }
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>購入する商品数を入力してください。</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Image src={OrderHeaderImage.src} alt='order' maxW='100%' />
+              <Text
+                textAlign={'center'}
+                color={useColorModeValue('gray.700', 'gray.400')}
+                fontSize='sm'
+              >
+                {state.selectedFood.name}
+              </Text>
+              <Text
+                textAlign={'center'}
+                color={useColorModeValue('gray.700', 'gray.400')}
+                fontSize='sm'
+              >
+                {state.selectedFood.description}
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <Text
+                textAlign={'center'}
+                color={useColorModeValue('gray.700', 'gray.400')}
+                fontSize='sm'
+              >
+                合計{state.selectedFoodCount}個
+              </Text>
+              <ButtonGroup size='sm' isAttached variant='outline'>
+                <IconButton
+                  aria-label='Add to friends'
+                  isDisabled={state.selectedFoodCount <= 1}
+                  icon={<MinusIcon onClick={() => onClickCountDown(state)} />}
                 />
-               }
-               />
-              <IconButton
-               aria-label='Add to friends'
-               isDisabled={state.selectedFoodCount >= 9}
-               icon={
-                 <AddIcon
-                  onClick={() => onClickCountUp(state)}
-                  />
-               }
-              />
-            </ButtonGroup>
-            <Stack direction='row' align='center'>
-              <Button size='md'
-                height='40px'
-                width='200px'
-                border='2px'
-                onClick={() => console.log("注文")}>
-                {`${state.selectedFoodCount}点を注文に追加`} {`¥${state.selectedFoodCount * state.selectedFood.price}`}
-              </Button>
-            </Stack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+                <IconButton
+                  aria-label='Add to friends'
+                  isDisabled={state.selectedFoodCount >= 9}
+                  icon={<AddIcon onClick={() => onClickCountUp(state)} />}
+                />
+              </ButtonGroup>
+              <Stack direction='row' align='center'>
+                <Button
+                  size='md'
+                  height='40px'
+                  width='200px'
+                  border='2px'
+                  onClick={() => submitOrder()}
+                >
+                  {`${state.selectedFoodCount}点を注文に追加`}{' '}
+                  {`¥${state.selectedFoodCount * state.selectedFood.price}`}
+                </Button>
+              </Stack>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+      {state.isOpenNewOrderDialog && (
+        <NewOrderConfirmModal
+          isOpen={state.isOpenNewOrderDialog}
+          onClose={() => setState({ ...state, isOpenNewOrderDialog: false })}
+          existingResutaurautName={state.existingResutaurautName}
+          newResutaurautName={state.newResutaurautName}
+          onClickSubmit={() => replaceOrder()}
+        />
+      )}
     </Container>
   );
 };

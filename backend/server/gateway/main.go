@@ -10,6 +10,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	gw_food "github.com/shimo0108/shopping/backend/server/pb/food"
 	gw_line_food "github.com/shimo0108/shopping/backend/server/pb/line_food"
+	gw_order "github.com/shimo0108/shopping/backend/server/pb/order"
 	gw_restaurant "github.com/shimo0108/shopping/backend/server/pb/restaurant"
 	gw_test "github.com/shimo0108/shopping/backend/server/pb/test"
 
@@ -22,6 +23,7 @@ var (
 	restaurantEndpoint = "shop_grpc:8080"
 	foodEndpoint       = "shop_grpc:8080"
 	lineFoodEndpoint   = "shop_grpc:8080"
+	orderEndpoint      = "shop_grpc:8080"
 )
 
 func run() error {
@@ -52,6 +54,10 @@ func run() error {
 	line_food_err := gw_line_food.RegisterLineFoodServiceHandlerFromEndpoint(ctx, mux, lineFoodEndpoint, opts)
 	if line_food_err != nil {
 		fmt.Printf("serve: %v\n", line_food_err)
+	}
+	order_err := gw_order.RegisterOrderServiceHandlerFromEndpoint(ctx, mux, orderEndpoint, opts)
+	if order_err != nil {
+		fmt.Printf("serve: %v\n", order_err)
 	}
 
 	return http.ListenAndServe(":9999", newMux)

@@ -7,9 +7,10 @@ type LineFood struct {
 	RestaurantID string `gorm:"not null"`
 	FoodID       string `gorm:"not null"`
 	OrderID      string
-	Count        int32 `gorm:"not null;default 0"`
-	Active       bool  `gorm:"not null;default false"`
-	Food         Food  `gorm:"ForeignKey:FoodID;AssociationForeignKey:ID"`
+	Count        int32      `gorm:"not null;default 0"`
+	Active       bool       `gorm:"not null;default false"`
+	Restaurant   Restaurant `gorm:"ForeignKey:RestaurantID;AssociationForeignKey:ID"`
+	Food         Food       `gorm:"ForeignKey:FoodID;AssociationForeignKey:ID"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

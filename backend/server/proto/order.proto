@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/shimo0108/shopping/backend/server";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message Order {
+  string id = 1;
+  int32 total_price = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message CreateOrderRequest {
+  repeated string line_food_ids = 1;
+}
+
+message CreateOrderResponse {
+  Order Order = 1;
+}
+
+service OrderService {
+
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/order"
+      body: "*"
+    };
+  };
+
+}
